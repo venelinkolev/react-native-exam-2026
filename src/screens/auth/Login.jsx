@@ -31,6 +31,7 @@ export default function Login() {
         <View style={styles.container}>
           <Text style={styles.title}>Впиши се</Text>
 
+          {/* Email Field */}
           <Controller
             control={control}
             name="email"
@@ -52,6 +53,7 @@ export default function Login() {
             )}
           />
 
+          {/* Password Field */}
           <Controller
             control={control}
             name="password"
@@ -73,6 +75,7 @@ export default function Login() {
             )}
           />
 
+          {/* Submit Button */}
           <TouchableOpacity
             style={styles.button}
             onPress={handleSubmit(handleLogin)}
@@ -86,12 +89,6 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  //   wrapper: {
-  //     flex: 1,
-  //     backgroundColor: "#fff",
-  //     alignItems: "center",
-  //     justifyContent: "center",
-  //   },
   container: {
     flex: 1,
     justifyContent: "center",
