@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import InputField from "../../shared/components/InputField";
 
-export default function Login() {
+export default function Login({ navigation }) {
   const {
     control,
     handleSubmit,
@@ -82,6 +82,16 @@ export default function Login() {
           >
             <Text style={styles.buttonText}>Влез</Text>
           </TouchableOpacity>
+
+          {/* Register Link */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Register")}
+            style={styles.registerLink}
+          >
+            <Text style={styles.registerText}>
+              Нямаш акаунт? Регистрирай се
+            </Text>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -113,5 +123,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  registerLink: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  registerText: {
+    color: "#3478f6",
+    fontSize: 14,
   },
 });

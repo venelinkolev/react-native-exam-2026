@@ -28,7 +28,7 @@ export default function InputField({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 45,
+    marginBottom: 30,
     position: "relative",
   },
   input: {

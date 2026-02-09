@@ -6,8 +6,16 @@ export default function AuthNavigator() {
   const Stack = createNativeStackNavigator();
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Вход" component={Login} />
-      <Stack.Screen name="Регистрация" component={Register} />
+      <Stack.Screen
+        name="Login"
+        component={Login}
+        options={{ title: "Вход" }}
+      />
+      <Stack.Screen
+        name="Register"
+        component={Register}
+        options={{ title: "Регистрация" }}
+      />
     </Stack.Navigator>
   );
 }
