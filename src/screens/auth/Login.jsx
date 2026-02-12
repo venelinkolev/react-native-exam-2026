@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InputField from "../../shared/components/InputField";
+import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
 
 export default function Login({ navigation }) {
   const {
@@ -28,6 +29,7 @@ export default function Login({ navigation }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
+        <ShopLogoHeader />
         <View style={styles.container}>
           <Text style={styles.title}>Впиши се</Text>
 

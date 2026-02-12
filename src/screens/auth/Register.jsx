@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InputField from "../../shared/components/InputField";
+import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
 
 export default function Register({ navigation }) {
   const {
@@ -34,6 +35,7 @@ export default function Register({ navigation }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
+        <ShopLogoHeader />
         <View style={styles.container}>
           <Text style={styles.title}>Регистрирай се</Text>
 
@@ -135,7 +137,7 @@ export default function Register({ navigation }) {
 
           {/* Register Link */}
           <TouchableOpacity
-            onPress={() => navigation.navigate("Login")}
+            onPress={() => navigation.goBack()}
             style={styles.loginLink}
           >
             <Text style={styles.loginText}>Имаш акаунт? Впиши се</Text>
