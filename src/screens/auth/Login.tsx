@@ -17,7 +17,7 @@ export default function Login({ navigation }) {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues: { email: "", password: "" } });
+  } = useForm({ defaultValues: { email: "", userName: "", password: "" } });
 
   const handleLogin = (data) => {
     console.log(data);
@@ -51,6 +51,28 @@ export default function Login({ navigation }) {
                 onChangeText={onChange}
                 keyboardType="email-address"
                 error={errors.email?.message}
+              />
+            )}
+          />
+
+          {/* User Name Field */}
+
+          <Controller
+            control={control}
+            name="userName"
+            rules={{
+              required: "Потребителското име е задължително",
+              minLength: {
+                value: 3,
+                message: "Минимум 3 символа",
+              },
+            }}
+            render={({ field: { onChange, value } }) => (
+              <InputField
+                placeholder="User Name"
+                value={value}
+                onChangeText={onChange}
+                error={errors.userName?.message}
               />
             )}
           />
