@@ -1,5 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
 import AuthNavigator from "./AuthNavigator";
+
 import { RootStackParamList } from "../types/navigation.types";
 
 export default function AppNavigator() {

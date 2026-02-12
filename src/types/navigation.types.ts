@@ -1,3 +1,5 @@
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
 // Root Stack
 export type RootStackParamList = {
     Auth: undefined;
@@ -21,3 +23,7 @@ export type MainTabParamList = {
     Cart: undefined;
     Profile: undefined;
 };
+
+// Navigation prop types за Auth screens
+export type LoginNavigationProp = NativeStackNavigationProp<AuthStackParamList, "Login">;
+export type RegisterNavigationProp = NativeStackNavigationProp<AuthStackParamList, "Register">;

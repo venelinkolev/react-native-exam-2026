@@ -1,4 +1,3 @@
-import { Controller, useForm } from "react-hook-form";
 import {
   View,
   Text,
@@ -8,10 +7,15 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { Controller, useForm } from "react-hook-form";
+
+import { RegisterNavigationProp } from "../../types/navigation.types";
+
 import InputField from "../../shared/components/InputField";
 import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
 
-export default function Register({ navigation }) {
+export default function Register({ navigation }: { navigation: RegisterNavigationProp }) {
   const {
     control,
     handleSubmit,
