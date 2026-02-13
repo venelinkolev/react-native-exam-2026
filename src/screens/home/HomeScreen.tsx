@@ -46,6 +46,13 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
                 }
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                    <View>
+                        <Text style={{ textAlign: "center", marginTop: 20, color: "#888" }}>
+                            Няма налични продукти.
+                        </Text>
+                    </View>
+                }
             />
         </SafeAreaView>
     );

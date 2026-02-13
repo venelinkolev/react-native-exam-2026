@@ -13,12 +13,12 @@ export default function HomeStackNavigator() {
             <Stack.Screen
                 name="HomeScreen"
                 component={HomeScreen}
-                options={{ headerShown: false }}
+                options={{ headerShown: false, presentation: "pageSheet" }}
             />
             <Stack.Screen
                 name="ProductDetails"
                 component={ProductDetailsScreen}
-                options={{ title: "Описание" }}
+                options={{ title: "Описание", presentation: "modal" }}
             />
         </Stack.Navigator>
     );
