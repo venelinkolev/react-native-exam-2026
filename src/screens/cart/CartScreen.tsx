@@ -3,29 +3,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useState } from "react";
 
-import { CartItem } from "../../types/product.types";
+import { CartItemAPI } from "../../types/cart.types";
 
 import ProductCartItemCard from "../../shared/components/ProductCartItemCard";
 
-const MOCK_CART: CartItem[] = [
-    { id: 1, name: "Безжични слушалки Sony WH-1000XM5", price: 379.99, quantity: 1 },
-    { id: 2, name: "Механична клавиатура Keychron K2", price: 129.99, quantity: 2 },
-    { id: 3, name: "Безжична мишка Logitech MX Master 3", price: 89.99, quantity: 1 },
-];
-
 export default function CartScreen() {
-    const [cartItems, setCartItems] = useState<CartItem[]>(MOCK_CART);
+    const [cartItems, setCartItems] = useState<CartItemAPI[]>([]);
 
     const handleIncrease = (id: number) => {
         setCartItems(prev =>
-            prev.map(item => item.id === id ? { ...item, quantity: item.quantity + 1 } : item)
+            prev.map(item => item.stockID === id ? { ...item, quantity: item.quantity + 1 } : item)
         );
     };
 
     const handleDecrease = (id: number) => {
         setCartItems(prev =>
             prev.map(item =>
-                item.id === id && item.quantity > 1
+                item.stockID === id && item.quantity > 1
                     ? { ...item, quantity: item.quantity - 1 }
                     : item
             )
@@ -33,7 +27,7 @@ export default function CartScreen() {
     };
 
     const handleRemove = (id: number) => {
-        setCartItems(prev => prev.filter(item => item.id !== id));
+        setCartItems(prev => prev.filter(item => item.stockID !== id));
     };
 
     const handleCheckout = () => {
@@ -71,9 +65,10 @@ export default function CartScreen() {
                 <Text style={styles.headerTitle}>🛒 Количка</Text>
             </View>
 
+            {/* Render Cart Items */}
             <FlatList
                 data={cartItems}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item.stockID.toString()}
                 renderItem={({ item }) => (
                     <ProductCartItemCard
                         item={item}
@@ -86,6 +81,7 @@ export default function CartScreen() {
                 showsVerticalScrollIndicator={false}
             />
 
+            {/* Checkout Button */}
             <View style={styles.footer}>
                 <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>Общо:</Text>
