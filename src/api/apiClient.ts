@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getToken } from "../utils/storage";
 
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 
 const apiClient = axios.create({
     baseURL: BASE_URL,

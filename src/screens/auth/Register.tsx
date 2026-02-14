@@ -5,10 +5,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
 
 import { RegisterNavigationProp } from "../../types/navigation.types";
 
@@ -23,6 +26,8 @@ type RegisterFormData = {
 }
 
 export default function Register({ navigation }: { navigation: RegisterNavigationProp }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -36,9 +41,19 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
     },
   });
 
-  const handleRegister = (data: RegisterFormData) => {
-    console.log(data);
-    // Handle registration logic here
+  const handleRegister = async (data: RegisterFormData) => {
+    try {
+      setIsSubmitting(true);
+      // Симулирана регистрация — без реален API
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      Alert.alert(
+        "Успешна регистрация! ✅",
+        "Акаунтът е създаден. Моля впиши се.",
+        [{ text: "Към вход", onPress: () => navigation.navigate("Login") }]
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -140,10 +155,15 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
 
           {/* Submit Button */}
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, isSubmitting && { opacity: 0.7 }]}
             onPress={handleSubmit(handleRegister)}
+            disabled={isSubmitting}
           >
-            <Text style={styles.buttonText}>Регистрирай се</Text>
+            {isSubmitting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Регистрирай се</Text>
+            )}
           </TouchableOpacity>
 
           {/* Register Link */}

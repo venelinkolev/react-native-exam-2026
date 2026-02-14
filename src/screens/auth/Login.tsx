@@ -5,12 +5,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
 
 import { LoginNavigationProp } from "../../types/navigation.types";
+import { loginUser } from "../../api/auth";
+import { useAuth } from "../../context/AuthContext";
 
 import InputField from "../../shared/components/InputField";
 import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
@@ -23,15 +28,28 @@ type LoginFormData = {
 
 
 export default function Login({ navigation }: { navigation: LoginNavigationProp }) {
+  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({ defaultValues: { email: "", userName: "", password: "" } });
 
-  const handleLogin = (data: LoginFormData) => {
-    console.log(data);
-    // Handle login logic here
+  const handleLogin = async (data: LoginFormData) => {
+    try {
+      setIsSubmitting(true);
+      const response = await loginUser({
+        email: data.email,
+        username: data.userName,
+      });
+      await login(response.token);
+    } catch {
+      Alert.alert("Грешка", "Невалиден е-мейл или парола. Моля опитай отново.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -111,10 +129,15 @@ export default function Login({ navigation }: { navigation: LoginNavigationProp 
 
           {/* Submit Button */}
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, isSubmitting && { opacity: 0.7 }]}
             onPress={handleSubmit(handleLogin)}
+            disabled={isSubmitting}
           >
-            <Text style={styles.buttonText}>Влез</Text>
+            {isSubmitting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Влез</Text>
+            )}
           </TouchableOpacity>
 
           {/* Register Link */}

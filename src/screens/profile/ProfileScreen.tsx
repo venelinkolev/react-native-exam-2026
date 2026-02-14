@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 const MOCK_USER = {
     email: "venelin@example.com",
@@ -9,6 +10,7 @@ const MOCK_USER = {
 
 export default function ProfileScreen() {
     const [imageUri, setImageUri] = useState<string | null>(null);
+    const { logout } = useAuth();
 
     const handleLogout = () => {
         Alert.alert(
@@ -16,7 +18,7 @@ export default function ProfileScreen() {
             "Сигурни ли сте, че искате да излезете?",
             [
                 { text: "Отказ", style: "cancel" },
-                { text: "Изход", style: "destructive", onPress: () => console.log("Logout pressed") },
+                { text: "Изход", style: "destructive", onPress: () => logout() },
             ]
         );
     };
