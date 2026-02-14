@@ -74,12 +74,14 @@ export default function CartScreen() {
             <FlatList
                 data={cartItems}
                 keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => ProductCartItemCard({
-                    item,
-                    handleIncrease,
-                    handleDecrease,
-                    handleRemove
-                })}
+                renderItem={({ item }) => (
+                    <ProductCartItemCard
+                        item={item}
+                        handleIncrease={handleIncrease}
+                        handleDecrease={handleDecrease}
+                        handleRemove={handleRemove}
+                    />
+                )}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
             />

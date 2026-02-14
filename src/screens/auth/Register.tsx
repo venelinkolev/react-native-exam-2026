@@ -15,12 +15,19 @@ import { RegisterNavigationProp } from "../../types/navigation.types";
 import InputField from "../../shared/components/InputField";
 import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
 
+type RegisterFormData = {
+  email: string;
+  userName: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export default function Register({ navigation }: { navigation: RegisterNavigationProp }) {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<RegisterFormData>({
     defaultValues: {
       email: "",
       userName: "",
@@ -29,7 +36,7 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
     },
   });
 
-  const handleRegister = (data) => {
+  const handleRegister = (data: RegisterFormData) => {
     console.log(data);
     // Handle registration logic here
   };

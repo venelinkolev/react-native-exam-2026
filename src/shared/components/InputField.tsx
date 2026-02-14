@@ -1,4 +1,15 @@
-import { View, TextInput, Text, StyleSheet } from "react-native";
+import { Key } from "react";
+import { View, TextInput, Text, StyleSheet, KeyboardTypeOptions } from "react-native";
+
+type InputFieldProps = {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  secureTextEntry?: boolean;
+  keyboardType?: KeyboardTypeOptions;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  error?: string;
+};
 
 export default function InputField({
   value,
@@ -8,7 +19,7 @@ export default function InputField({
   keyboardType = "default",
   autoCapitalize = "none",
   error,
-}) {
+}: InputFieldProps) {
   return (
     <View style={styles.container}>
       <TextInput

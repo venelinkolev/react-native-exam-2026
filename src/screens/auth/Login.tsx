@@ -15,15 +15,21 @@ import { LoginNavigationProp } from "../../types/navigation.types";
 import InputField from "../../shared/components/InputField";
 import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
 
+type LoginFormData = {
+  email: string;
+  userName: string;
+  password: string;
+}
+
 
 export default function Login({ navigation }: { navigation: LoginNavigationProp }) {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues: { email: "", userName: "", password: "" } });
+  } = useForm<LoginFormData>({ defaultValues: { email: "", userName: "", password: "" } });
 
-  const handleLogin = (data) => {
+  const handleLogin = (data: LoginFormData) => {
     console.log(data);
     // Handle login logic here
   };
