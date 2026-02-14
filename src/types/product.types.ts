@@ -7,3 +7,10 @@ export type ProductParam = {
     imageUrl?: string;
     category?: string;
 };
+
+export type CartItem = {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+};
