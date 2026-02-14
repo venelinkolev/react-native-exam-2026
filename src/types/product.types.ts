@@ -1,4 +1,4 @@
-// Product type
+// Product from GET /getstockslite
 export type ProductParam = {
     id: number;
     name: string;
@@ -6,11 +6,5 @@ export type ProductParam = {
     description?: string;
     imageUrl?: string;
     category?: string;
-};
-
-export type CartItem = {
-    id: number;
-    name: string;
-    price: number;
-    quantity: number;
+    stockID?: number;
 };
