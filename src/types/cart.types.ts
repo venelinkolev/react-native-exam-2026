@@ -1,16 +1,18 @@
 // Item in Cart from API
 export type CartItemAPI = {
     kasbuf_id: number;
-    stockID: number;
+    stock_id: number;
     name: string;
     price: number;
+    sum_price: number;
     quantity: number;
-    information?: string;
+    more_info?: string;
+    image?: string | null;
 };
 
 // Request POST /cart (adding to cart)
 export type AddToCartRequest = {
-    sessionID: string;
+    sessionID: number;
     stockID: number;
     customerID: 0;
     quantity: number;
@@ -22,7 +24,7 @@ export type AddToCartRequest = {
 
 // Request GET /cart (loading cart)
 export type GetCartRequest = {
-    sessionID: string;
+    sessionID: number;
     customerID: 0;
 };
 
