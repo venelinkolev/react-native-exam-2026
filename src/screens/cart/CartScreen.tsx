@@ -1,33 +1,32 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
-import { useState } from "react";
-
-import { CartItemAPI } from "../../types/cart.types";
-
+import { useCart } from "../../context/CartContext";
 import ProductCartItemCard from "../../shared/components/ProductCartItemCard";
 
 export default function CartScreen() {
-    const [cartItems, setCartItems] = useState<CartItemAPI[]>([]);
+    const { cartItems, isLoading, error, fetchCart, updateQuantity, removeItem } = useCart();
 
-    const handleIncrease = (id: number) => {
-        setCartItems(prev =>
-            prev.map(item => item.stockID === id ? { ...item, quantity: item.quantity + 1 } : item)
-        );
+    useFocusEffect(
+        useCallback(() => {
+            fetchCart();
+        }, [fetchCart])
+    );
+
+    const handleIncrease = async (kasbuf_id: number) => {
+        const item = cartItems.find(i => i.kasbuf_id === kasbuf_id);
+        if (item) await updateQuantity(kasbuf_id, item.quantity + 1);
     };
 
-    const handleDecrease = (id: number) => {
-        setCartItems(prev =>
-            prev.map(item =>
-                item.stockID === id && item.quantity > 1
-                    ? { ...item, quantity: item.quantity - 1 }
-                    : item
-            )
-        );
+    const handleDecrease = async (kasbuf_id: number) => {
+        const item = cartItems.find(i => i.kasbuf_id === kasbuf_id);
+        if (item && item.quantity > 1) await updateQuantity(kasbuf_id, item.quantity - 1);
     };
 
-    const handleRemove = (id: number) => {
-        setCartItems(prev => prev.filter(item => item.stockID !== id));
+    const handleRemove = async (kasbuf_id: number) => {
+        await removeItem(kasbuf_id);
     };
 
     const handleCheckout = () => {
@@ -36,7 +35,11 @@ export default function CartScreen() {
             "Благодарим ви! Ще се свържем с вас скоро.",
             [{
                 text: "OK",
-                onPress: () => setCartItems([]),
+                onPress: async () => {
+                    for (const item of cartItems) {
+                        await removeItem(item.kasbuf_id);
+                    }
+                },
             }]
         );
     };
@@ -45,13 +48,45 @@ export default function CartScreen() {
         (sum, item) => sum + item.price * item.quantity, 0
     );
 
+    // Loading state
+    if (isLoading && cartItems.length === 0) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>🛒 Количка</Text>
+                </View>
+                <View style={styles.centerContainer}>
+                    <ActivityIndicator size="large" color="#3478f6" />
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>🛒 Количка</Text>
+                </View>
+                <View style={styles.centerContainer}>
+                    <Text style={styles.errorText}>{error}</Text>
+                    <TouchableOpacity style={styles.retryBtn} onPress={fetchCart}>
+                        <Text style={styles.retryBtnText}>Опитай отново</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Empty state
     if (cartItems.length === 0) {
         return (
             <SafeAreaView style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>🛒 Количка</Text>
                 </View>
-                <View style={styles.emptyContainer}>
+                <View style={styles.centerContainer}>
                     <Text style={styles.emptyEmoji}>🛒</Text>
                     <Text style={styles.emptyText}>Количката е празна</Text>
                 </View>
@@ -65,10 +100,9 @@ export default function CartScreen() {
                 <Text style={styles.headerTitle}>🛒 Количка</Text>
             </View>
 
-            {/* Render Cart Items */}
             <FlatList
                 data={cartItems}
-                keyExtractor={(item) => item.stockID.toString()}
+                keyExtractor={(item) => item.stock_id.toString()}
                 renderItem={({ item }) => (
                     <ProductCartItemCard
                         item={item}
@@ -77,11 +111,13 @@ export default function CartScreen() {
                         handleRemove={handleRemove}
                     />
                 )}
+                refreshControl={
+                    <RefreshControl refreshing={isLoading} onRefresh={fetchCart} />
+                }
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
             />
 
-            {/* Checkout Button */}
             <View style={styles.footer}>
                 <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>Общо:</Text>
@@ -144,7 +180,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
     },
-    emptyContainer: {
+    centerContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
@@ -156,5 +192,21 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 18,
         color: "#888",
+    },
+    errorText: {
+        fontSize: 15,
+        color: "#e74c3c",
+        marginBottom: 16,
+        textAlign: "center",
+    },
+    retryBtn: {
+        backgroundColor: "#3478f6",
+        paddingHorizontal: 24,
+        paddingVertical: 10,
+        borderRadius: 8,
+    },
+    retryBtnText: {
+        color: "#fff",
+        fontWeight: "bold",
     },
 });

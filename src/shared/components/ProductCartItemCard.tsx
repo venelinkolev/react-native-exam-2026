@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-import { CartItem } from "../../types/product.types";
+import { CartItemAPI } from "../../types/cart.types";
 
 export default function ProductCartItemCard(
     {
@@ -9,7 +9,7 @@ export default function ProductCartItemCard(
         handleDecrease,
         handleRemove
     }: {
-        item: CartItem,
+        item: CartItemAPI,
         handleIncrease: (id: number) => void,
         handleDecrease: (id: number) => void,
         handleRemove: (id: number) => void
@@ -23,15 +23,15 @@ export default function ProductCartItemCard(
             </View>
             <View style={styles.cardActions}>
                 <View style={styles.quantityRow}>
-                    <TouchableOpacity style={styles.qtyBtn} onPress={() => handleDecrease(item.id)}>
+                    <TouchableOpacity style={styles.qtyBtn} onPress={() => handleDecrease(item.kasbuf_id)}>
                         <Text style={styles.qtyBtnText}>−</Text>
                     </TouchableOpacity>
                     <Text style={styles.qtyValue}>{item.quantity}</Text>
-                    <TouchableOpacity style={styles.qtyBtn} onPress={() => handleIncrease(item.id)}>
+                    <TouchableOpacity style={styles.qtyBtn} onPress={() => handleIncrease(item.kasbuf_id)}>
                         <Text style={styles.qtyBtnText}>+</Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={() => handleRemove(item.id)}>
+                <TouchableOpacity onPress={() => handleRemove(item.kasbuf_id)}>
                     <Text style={styles.removeBtn}>🗑️ Премахни</Text>
                 </TouchableOpacity>
             </View>
