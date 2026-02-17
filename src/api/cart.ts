@@ -1,4 +1,5 @@
 import apiClient from "./apiClient";
+import { getToken } from "../utils/storage";
 import {
     CartItemAPI,
     AddToCartRequest,
@@ -7,25 +8,44 @@ import {
     DeleteCartRequest,
 } from "../types/cart.types";
 
-// GET — fetch cart items
+const getAuthHeader = async () => {
+    const token = await getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const getCart = async (data: GetCartRequest): Promise<CartItemAPI[]> => {
-    const response = await apiClient.get<CartItemAPI[]>("/cart", {
-        data,
+    const token = await getToken();
+
+    const url = `${process.env.EXPO_PUBLIC_BASE_URL}/cart?sessionID=${data.sessionID}&customerID=${data.customerID}`;
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
     });
-    return response.data;
+
+    const result = await response.json();
+
+    if (!result?.success || !Array.isArray(result?.items)) return [];
+    return result.items;
 };
 
-// POST — add to cart
 export const addToCart = async (data: AddToCartRequest): Promise<void> => {
-    await apiClient.post("/cart", data);
+    const headers = await getAuthHeader();
+    await apiClient.post("/cart", data, { headers });
 };
 
-// PUT — change item in cart (quantity)
 export const updateCartItem = async (data: UpdateCartRequest): Promise<void> => {
-    await apiClient.put("/cart", data);
+    const headers = await getAuthHeader();
+    await apiClient.put("/cart", data, { headers });
 };
 
-// DELETE — delete item from cart
 export const deleteCartItem = async (data: DeleteCartRequest): Promise<void> => {
-    await apiClient.delete("/cart", { data });
+    const headers = await getAuthHeader();
+    await apiClient.delete("/cart", {
+        headers,
+        data: { id: data.id },
+    });
 };
