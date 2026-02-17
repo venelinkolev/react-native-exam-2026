@@ -10,7 +10,15 @@ export default function ProductCard({ product, onPress }: Props) {
     return (
         <TouchableOpacity style={styles.card} onPress={() => onPress(product)}>
             <View style={styles.imagePlaceholder}>
-                <Text style={styles.imagePlaceholderText}>📦</Text>
+                {product.imageUrl ? (
+                    <Image
+                        source={{ uri: product.imageUrl }}
+                        style={styles.image}
+                        resizeMode="cover"
+                    />
+                ) : (
+                    <Text style={styles.imagePlaceholderText}>📦</Text>
+                )}
             </View>
             <View style={styles.info}>
                 <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
@@ -48,6 +56,12 @@ const styles = StyleSheet.create({
     },
     imagePlaceholderText: {
         fontSize: 32,
+    },
+    image: {
+        width: "100%",
+        height: "100%",
+        borderRadius: 8,
+        position: "absolute",
     },
     info: {
         flex: 1,

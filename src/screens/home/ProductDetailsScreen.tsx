@@ -1,28 +1,51 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, ActivityIndicator, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useState } from "react";
+
 import { HomeStackParamList } from "../../types/navigation.types";
+import { useCart } from "../../context/CartContext";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "ProductDetails">;
 
-export default function ProductDetailsScreen({ route, navigation }: Props) {
+export default function ProductDetailsScreen({ route }: Props) {
     const { product } = route.params;
+    const { addToCart } = useCart();
+    const [isAdding, setIsAdding] = useState(false);
 
-    const handleAddToCart = () => {
-        Alert.alert(
-            "Добавено в количката",
-            `„${product.name}" беше добавен успешно.`,
-            [{ text: "OK" }]
-        );
+    const handleAddToCart = async () => {
+        if (!product.stockID && !product.id) return;
+
+        try {
+            setIsAdding(true);
+            await addToCart(product.stockID ?? product.id);
+            Alert.alert(
+                "Добавено! ✅",
+                `„${product.name}" беше добавен в количката.`,
+                [{ text: "OK" }]
+            );
+        } catch {
+            Alert.alert("Грешка", "Неуспешно добавяне в количката.");
+        } finally {
+            setIsAdding(false);
+        }
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
 
-                {/* Image Placeholder */}
+                {/* Product Image */}
                 <View style={styles.imagePlaceholder}>
-                    <Text style={styles.imagePlaceholderText}>📦</Text>
+                    {product.imageUrl ? (
+                        <Image
+                            source={{ uri: product.imageUrl }}
+                            style={styles.productImage}
+                            resizeMode="contain"
+                        />
+                    ) : (
+                        <Text style={styles.imagePlaceholderText}>📦</Text>
+                    )}
                 </View>
 
                 {/* Category */}
@@ -49,8 +72,16 @@ export default function ProductDetailsScreen({ route, navigation }: Props) {
 
             {/* Add to Cart Button */}
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
-                    <Text style={styles.cartButtonText}>🛒 Добави в количката</Text>
+                <TouchableOpacity
+                    style={[styles.cartButton, isAdding && { opacity: 0.7 }]}
+                    onPress={handleAddToCart}
+                    disabled={isAdding}
+                >
+                    {isAdding ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.cartButtonText}>🛒 Добави в количката</Text>
+                    )}
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -77,6 +108,11 @@ const styles = StyleSheet.create({
     },
     imagePlaceholderText: {
         fontSize: 72,
+    },
+    productImage: {
+        width: "100%",
+        height: "100%",
+        borderRadius: 12,
     },
     category: {
         fontSize: 13,
