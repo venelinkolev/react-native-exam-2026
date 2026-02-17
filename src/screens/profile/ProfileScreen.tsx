@@ -1,7 +1,12 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import * as ImagePicker from "expo-image-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { useAuth } from "../../context/AuthContext";
+
+const AVATAR_KEY = "user_avatar_uri";
 
 const MOCK_USER = {
     email: "venelin@example.com",
@@ -11,6 +16,41 @@ const MOCK_USER = {
 export default function ProfileScreen() {
     const [imageUri, setImageUri] = useState<string | null>(null);
     const { logout } = useAuth();
+
+    // Load saved avatar URI on mount
+    useEffect(() => {
+        const loadAvatar = async () => {
+            const saved = await AsyncStorage.getItem(AVATAR_KEY);
+            if (saved) setImageUri(saved);
+        };
+        loadAvatar();
+    }, []);
+
+    const handleImagePick = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (status !== "granted") {
+            Alert.alert(
+                "Няма разрешение",
+                "Трябва да разрешите достъп до галерията за да смените снимката."
+            );
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ["images"],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets.length > 0) {
+            const uri = result.assets[0].uri;
+            setImageUri(uri);
+            // Save the selected image URI to AsyncStorage
+            await AsyncStorage.setItem(AVATAR_KEY, uri);
+        }
+    };
 
     const handleLogout = () => {
         Alert.alert(
@@ -23,17 +63,14 @@ export default function ProfileScreen() {
         );
     };
 
-    const handleImagePick = () => {
-        Alert.alert("ImagePicker", "Тук ще се имплементира Expo ImagePicker.");
-    };
-
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>👤 Профил</Text>
             </View>
 
-            <View style={styles.content}>
+            <ScrollView contentContainerStyle={styles.content}>
+
                 {/* Avatar */}
                 <TouchableOpacity style={styles.avatarContainer} onPress={handleImagePick}>
                     {imageUri ? (
@@ -43,7 +80,9 @@ export default function ProfileScreen() {
                             <Text style={styles.avatarEmoji}>👤</Text>
                         </View>
                     )}
-                    <Text style={styles.changePhotoText}>Смени снимка</Text>
+                    <View style={styles.changePhotoBadge}>
+                        <Text style={styles.changePhotoText}>📷 Смени снимка</Text>
+                    </View>
                 </TouchableOpacity>
 
                 {/* User Info */}
@@ -63,7 +102,8 @@ export default function ProfileScreen() {
                 <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
                     <Text style={styles.logoutBtnText}>Изход от акаунта</Text>
                 </TouchableOpacity>
-            </View>
+
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -84,7 +124,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     content: {
-        flex: 1,
         padding: 20,
         alignItems: "center",
     },
@@ -94,26 +133,33 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     avatarPlaceholder: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+        width: 110,
+        height: 110,
+        borderRadius: 55,
         backgroundColor: "#dce8ff",
         justifyContent: "center",
         alignItems: "center",
-        marginBottom: 8,
+        marginBottom: 10,
     },
     avatarEmoji: {
-        fontSize: 48,
+        fontSize: 52,
     },
     avatar: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        marginBottom: 8,
+        width: 110,
+        height: 110,
+        borderRadius: 55,
+        marginBottom: 10,
+    },
+    changePhotoBadge: {
+        backgroundColor: "#e8f0ff",
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 20,
     },
     changePhotoText: {
         fontSize: 13,
         color: "#3478f6",
+        fontWeight: "600",
     },
     infoCard: {
         width: "100%",
