@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import uuid from "react-native-uuid";
 
 import { AuthContextType, AuthState } from "../types/auth.types";
 import {
@@ -51,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Login saves token and sessionID to storage and updates state
     const login = async (token: string) => {
-        const sessionID = uuid.v4() as string;
+        const sessionID = String(Date.now());
 
         await saveToken(token);
         await saveSessionID(sessionID);
