@@ -20,14 +20,20 @@ import { useAuth } from "../../context/AuthContext";
 import InputField from "../../shared/components/InputField";
 import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
 
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../firebaseConfig";
+
 type LoginFormData = {
   email: string;
   userName: string;
   password: string;
-}
+};
 
-
-export default function Login({ navigation }: { navigation: LoginNavigationProp }) {
+export default function Login({
+  navigation,
+}: {
+  navigation: LoginNavigationProp;
+}) {
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,17 +41,33 @@ export default function Login({ navigation }: { navigation: LoginNavigationProp 
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({ defaultValues: { email: "", userName: "", password: "" } });
+  } = useForm<LoginFormData>({
+    defaultValues: { email: "", userName: "", password: "" },
+  });
 
   const handleLogin = async (data: LoginFormData) => {
     try {
       setIsSubmitting(true);
+
       const response = await loginUser({
         email: data.email,
         username: data.userName,
       });
-      await login(response.token);
-    } catch {
+
+      const firebaseToken = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password,
+      );
+
+      console.log("Firebase user:", firebaseToken.user);
+
+      const token = await firebaseToken.user.getIdToken();
+
+      console.log("Firebase token:", token);
+
+      await login(response.token, token);
+    } catch (error) {
       Alert.alert("Грешка", "Невалиден е-мейл или парола. Моля опитай отново.");
     } finally {
       setIsSubmitting(false);
