@@ -14,7 +14,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useState } from "react";
 
 import { LoginNavigationProp } from "../../types/navigation.types";
-import { loginUser } from "../../api/auth";
+import { loginApiSession } from "../../api/auth";
 import { useAuth } from "../../context/AuthContext";
 
 import InputField from "../../shared/components/InputField";
@@ -22,6 +22,7 @@ import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebaseConfig";
+import { ENVIRONMENT } from "../../../local.environment";
 
 type LoginFormData = {
   email: string;
@@ -34,8 +35,9 @@ export default function Login({
 }: {
   navigation: LoginNavigationProp;
 }) {
-  const { login } = useAuth();
+  const { login, continueAsGuest, apiSession } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   const {
     control,
@@ -45,13 +47,33 @@ export default function Login({
     defaultValues: { email: "", userName: "", password: "" },
   });
 
+  const handleApiSession = async () => {
+    try {
+      setIsGuest(true);
+
+      const response = await loginApiSession({
+        email: ENVIRONMENT.apiEmail,
+        username: ENVIRONMENT.apiUsername,
+      });
+
+      await apiSession(response.token);
+
+      continueAsGuest();
+
+    } catch (error) {
+      Alert.alert("Грешка", (error as Error).message);
+    } finally {
+      setIsGuest(false);
+    }
+  }
+
   const handleLogin = async (data: LoginFormData) => {
     try {
       setIsSubmitting(true);
 
-      const response = await loginUser({
-        email: data.email,
-        username: data.userName,
+      const response = await loginApiSession({
+        email: ENVIRONMENT.apiEmail,
+        username: ENVIRONMENT.apiUsername,
       });
 
       const firebaseToken = await signInWithEmailAndPassword(
@@ -60,11 +82,7 @@ export default function Login({
         data.password,
       );
 
-      console.log("Firebase user:", firebaseToken.user);
-
       const token = await firebaseToken.user.getIdToken();
-
-      console.log("Firebase token:", token);
 
       await login(response.token, token);
     } catch (error) {
@@ -106,7 +124,7 @@ export default function Login({
           />
 
           {/* User Name Field */}
-
+          {/* 
           <Controller
             control={control}
             name="userName"
@@ -125,7 +143,7 @@ export default function Login({
                 error={errors.userName?.message}
               />
             )}
-          />
+          /> */}
 
           {/* Password Field */}
           <Controller
@@ -171,6 +189,19 @@ export default function Login({
               Нямаш акаунт? Регистрирай се
             </Text>
           </TouchableOpacity>
+
+          {/* Guest Button */}
+          <TouchableOpacity
+            style={[styles.button, styles.guestButton, isGuest && { opacity: 0.7 }]}
+            onPress={handleApiSession}
+            disabled={isGuest}
+          >
+            {isGuest ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Влез като гост</Text>
+            )}
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -210,5 +241,9 @@ const styles = StyleSheet.create({
   registerText: {
     color: "#3478f6",
     fontSize: 14,
+  },
+  guestButton: {
+    marginTop: 20,
+    backgroundColor: "#888",
   },
 });

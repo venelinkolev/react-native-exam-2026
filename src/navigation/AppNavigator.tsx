@@ -10,7 +10,7 @@ import MainTabNavigator from "./MainTabNavigator";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isGuest } = useAuth();
 
   // Spinner while checking auth state
   if (isLoading) {
@@ -23,7 +23,7 @@ export default function AppNavigator() {
 
   return (
     <Stack.Navigator id="RootStack" screenOptions={{ headerShown: false }}>
-      {isAuthenticated ? (
+      {isAuthenticated || isGuest ? (
         <Stack.Screen name="Main" component={MainTabNavigator} />
       ) : (
         <Stack.Screen name="Auth" component={AuthNavigator} />

@@ -15,6 +15,7 @@ export type AuthState = {
   firebaseToken: string | null;
   sessionID: string | null;
   isAuthenticated: boolean;
+  isGuest: boolean;
   isLoading: boolean;
 };
 
@@ -22,4 +23,6 @@ export type AuthState = {
 export type AuthContextType = AuthState & {
   login: (token: string, firebaseToken: string) => Promise<void>;
   logout: () => Promise<void>;
+  continueAsGuest: () => void;
+  apiSession: (token: string) => Promise<void>;
 };

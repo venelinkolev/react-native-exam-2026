@@ -25,6 +25,7 @@ const initialState: AuthState = {
   firebaseToken: null,
   sessionID: null,
   isAuthenticated: false,
+  isGuest: false,
   isLoading: true,
 };
 
@@ -47,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             firebaseToken,
             sessionID,
             isAuthenticated: true,
+            isGuest: false,
             isLoading: false,
           });
         } else {
@@ -59,6 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     loadSession();
   }, []);
+
+  const apiSession = async (token: string) => {
+    const sessionID = String(Date.now());
+
+    await saveToken(token);
+    await saveSessionID(sessionID);
+  }
 
   // Login saves token and sessionID to storage and updates state
   const login = async (token: string, firebaseToken: string) => {
@@ -73,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       firebaseToken,
       sessionID,
       isAuthenticated: true,
+      isGuest: false,
       isLoading: false,
     });
   };
@@ -88,12 +98,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       firebaseToken: null,
       sessionID: null,
       isAuthenticated: false,
+      isGuest: false,
+      isLoading: false,
+    });
+  };
+
+  const continueAsGuest = () => {
+    setAuthState({
+      token: null,
+      firebaseToken: null,
+      sessionID: null,
+      isAuthenticated: false,
+      isGuest: true,
       isLoading: false,
     });
   };
 
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout }}>
+    <AuthContext.Provider value={{ ...authState, login, logout, continueAsGuest, apiSession }}>
       {children}
     </AuthContext.Provider>
   );

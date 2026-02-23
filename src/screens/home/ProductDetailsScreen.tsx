@@ -5,12 +5,14 @@ import { useState } from "react";
 
 import { HomeStackParamList } from "../../types/navigation.types";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "ProductDetails">;
 
 export default function ProductDetailsScreen({ route }: Props) {
     const { product } = route.params;
     const { addToCart } = useCart();
+    const { isGuest } = useAuth();
     const [isAdding, setIsAdding] = useState(false);
 
     const handleAddToCart = async () => {
@@ -72,17 +74,22 @@ export default function ProductDetailsScreen({ route }: Props) {
 
             {/* Add to Cart Button */}
             <View style={styles.footer}>
-                <TouchableOpacity
-                    style={[styles.cartButton, isAdding && { opacity: 0.7 }]}
-                    onPress={handleAddToCart}
-                    disabled={isAdding}
-                >
-                    {isAdding ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.cartButtonText}>🛒 Добави в количката</Text>
-                    )}
-                </TouchableOpacity>
+                {isGuest ? (
+                    <Text style={{ color: "#888", textAlign: "center" }}>
+                        Влез в профила си, за да добавиш в количката.
+                    </Text>)
+                    : (
+                        <TouchableOpacity
+                            style={[styles.cartButton, isAdding && { opacity: 0.7 }]}
+                            onPress={handleAddToCart}
+                            disabled={isAdding}
+                        >
+                            {isAdding ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.cartButtonText}>🛒 Добави в количката</Text>
+                            )}
+                        </TouchableOpacity>)}
             </View>
         </SafeAreaView>
     );
