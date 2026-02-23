@@ -6,16 +6,23 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useAuth } from "../../context/AuthContext";
 
-const AVATAR_KEY = "user_avatar_uri";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "../../../firebaseConfig";
 
-const MOCK_USER = {
-    email: "venelin@example.com",
-    username: "venelin_k",
-};
+const AVATAR_KEY = "user_avatar_uri";
 
 export default function ProfileScreen() {
     const [imageUri, setImageUri] = useState<string | null>(null);
+    const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
     const { logout } = useAuth();
+
+    // Real data from Firebase user
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setFirebaseUser(user);
+        });
+        return () => unsubscribe();
+    }, []);
 
     // Load saved avatar URI on mount
     useEffect(() => {
@@ -89,12 +96,12 @@ export default function ProfileScreen() {
                 <View style={styles.infoCard}>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Потребител</Text>
-                        <Text style={styles.infoValue}>{MOCK_USER.username}</Text>
+                        <Text style={styles.infoValue}>{firebaseUser?.displayName || "Няма потребител"}</Text>
                     </View>
                     <View style={styles.divider} />
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Е-мейл</Text>
-                        <Text style={styles.infoValue}>{MOCK_USER.email}</Text>
+                        <Text style={styles.infoValue}>{firebaseUser?.email || "Няма е-мейл"}</Text>
                     </View>
                 </View>
 
