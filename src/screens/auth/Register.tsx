@@ -19,6 +19,9 @@ import InputField from "../../shared/components/InputField";
 import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
 import { useKeyboard } from "../../hooks/useKeyboard";
 
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "../../../firebaseConfig";
+
 type RegisterFormData = {
   email: string;
   userName: string;
@@ -46,17 +49,39 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
   const handleRegister = async (data: RegisterFormData) => {
     try {
       setIsSubmitting(true);
-      // Симулирана регистрация — без реален API
-      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+
+      await updateProfile(userCredential.user, {
+        displayName: data.userName,
+      });
+
       Alert.alert(
         "Успешна регистрация! ✅",
         "Акаунтът е създаден. Моля впиши се.",
-        [{ text: "Към вход", onPress: () => navigation.navigate("Login") }]
+        [{ text: "Към вход", onPress: () => navigation.goBack() }]
       );
+    } catch (error: unknown) {
+      const code = (error as { code?: string })?.code;
+
+      if (code === "auth/email-already-in-use") {
+        Alert.alert("Грешка", "Този е-мейл вече е регистриран.");
+      } else if (code === "auth/invalid-email") {
+        Alert.alert("Грешка", "Невалиден е-мейл адрес.");
+      } else if (code === "auth/weak-password") {
+        Alert.alert("Грешка", "Паролата трябва да е поне 6 символа.");
+      } else {
+        Alert.alert("Грешка", "Неуспешна регистрация. Моля опитай отново.");
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <KeyboardAvoidingView
