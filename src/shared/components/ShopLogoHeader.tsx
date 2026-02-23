@@ -32,10 +32,10 @@ const styles = StyleSheet.create({
     },
     logoContainer: {
         alignItems: "center",
-        marginTop: 20,
+        marginTop: 15,
     },
     logo: {
-        width: 112,
-        height: 100,
+        width: 100,
+        height: 88,
     },
 });
