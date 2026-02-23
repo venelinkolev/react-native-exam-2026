@@ -17,6 +17,7 @@ import { RegisterNavigationProp } from "../../types/navigation.types";
 
 import InputField from "../../shared/components/InputField";
 import ShopLogoHeader from "../../shared/components/ShopLogoHeader";
+import { useKeyboard } from "../../hooks/useKeyboard";
 
 type RegisterFormData = {
   email: string;
@@ -27,6 +28,7 @@ type RegisterFormData = {
 
 export default function Register({ navigation }: { navigation: RegisterNavigationProp }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isKeyboardVisible } = useKeyboard();
 
   const {
     control,
@@ -60,8 +62,11 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
+
       >
-        <ShopLogoHeader />
+        {!isKeyboardVisible && (
+          <ShopLogoHeader />
+        )}
         <View style={styles.container}>
           <Text style={styles.title}>Регистрирай се</Text>
 
