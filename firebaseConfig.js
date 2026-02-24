@@ -22,6 +22,6 @@ export const auth = initializeAuth(app, {
 });
 
 // Initialize Realtime Database and get a reference to the service
-export const database = getDatabase(app);
+export const database = getDatabase(app, ENVIRONMENT.databaseURL);
 // Initialize Cloud Storage and get a reference to the service
 export const storage = getStorage(app);
