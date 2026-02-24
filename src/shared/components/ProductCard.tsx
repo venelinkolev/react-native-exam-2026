@@ -1,5 +1,8 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ActivityIndicator } from "react-native";
 import { ProductParam } from "../../types/product.types";
+import { useCart } from "../../context/CartContext";
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 type Props = {
     product: ProductParam;
@@ -7,6 +10,28 @@ type Props = {
 };
 
 export default function ProductCard({ product, onPress }: Props) {
+    const { addToCart } = useCart();
+    const { isGuest } = useAuth();
+    const [isAdding, setIsAdding] = useState(false);
+
+    const handleAddToCart = async () => {
+        if (!product.stockID && !product.id) return;
+
+        try {
+            setIsAdding(true);
+            await addToCart(product.stockID ?? product.id);
+            Alert.alert(
+                "Добавено! ✅",
+                `„${product.name}" беше добавен в количката.`,
+                [{ text: "OK" }]
+            );
+        } catch {
+            Alert.alert("Грешка", "Неуспешно добавяне в количката.");
+        } finally {
+            setIsAdding(false);
+        }
+    };
+
     return (
         <TouchableOpacity style={styles.card} onPress={() => onPress(product)}>
             <View style={styles.imagePlaceholder}>
@@ -21,11 +46,31 @@ export default function ProductCard({ product, onPress }: Props) {
                 )}
             </View>
             <View style={styles.info}>
-                <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
-                {product.category && (
-                    <Text style={styles.category}>{product.category}</Text>
-                )}
-                <Text style={styles.price}>{product.price.toFixed(2)} €</Text>
+                <View style={styles.infoContent}>
+                    <View>
+                        <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
+                        {product.category && (
+                            <Text style={styles.category}>{product.category}</Text>
+                        )}
+                        <Text style={styles.price}>{product.price.toFixed(2)} €</Text>
+                    </View>
+                    <View style={styles.cart}>
+                        {isGuest ? (
+                            <Text style={{ color: "#888", textAlign: "center" }}></Text>)
+                            : (
+                                <TouchableOpacity
+                                    style={[isAdding && { opacity: 0.7 }]}
+                                    onPress={handleAddToCart}
+                                    disabled={isAdding}
+                                >
+                                    {isAdding ? (
+                                        <ActivityIndicator color="#3478f6" />
+                                    ) : (
+                                        <Text style={styles.cartIcon}>🛒</Text>
+                                    )}
+                                </TouchableOpacity>)}
+                    </View>
+                </View>
             </View>
         </TouchableOpacity>
     );
@@ -66,6 +111,17 @@ const styles = StyleSheet.create({
     info: {
         flex: 1,
         justifyContent: "center",
+    },
+    infoContent: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    cart: {
+        marginRight: 20,
+    },
+    cartIcon: {
+        fontSize: 28,
     },
     name: {
         fontSize: 15,

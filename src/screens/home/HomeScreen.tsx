@@ -135,9 +135,11 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     sliderContainer: {
+        flexDirection: "row",
+        alignItems: "center",
         backgroundColor: "#fff",
         paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingVertical: 8,
         borderBottomWidth: 1,
         borderBottomColor: "#e0e0e0",
     },
@@ -148,8 +150,8 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
     slider: {
-        width: "100%",
-        height: 36,
+        width: "70%",
+        height: 26,
     },
     list: {
         paddingVertical: 10,
