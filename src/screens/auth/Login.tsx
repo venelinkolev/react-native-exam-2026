@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  TextInput
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Controller, useForm } from "react-hook-form";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { LoginNavigationProp } from "../../types/navigation.types";
 import { loginApiSession } from "../../api/auth";
@@ -30,6 +31,7 @@ type LoginFormData = {
   password: string;
 };
 
+
 export default function Login({
   navigation,
 }: {
@@ -38,6 +40,8 @@ export default function Login({
   const { login, continueAsGuest, apiSession } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+
+  const passwordRef = useRef<TextInput>(null);
 
   const {
     control,
@@ -119,6 +123,9 @@ export default function Login({
                 onChangeText={onChange}
                 keyboardType="email-address"
                 error={errors.email?.message}
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => passwordRef.current?.focus()}
               />
             )}
           />
@@ -158,11 +165,14 @@ export default function Login({
             }}
             render={({ field: { onChange, value } }) => (
               <InputField
+                ref={passwordRef}
                 placeholder="Password"
                 value={value}
                 onChangeText={onChange}
                 secureTextEntry
                 error={errors.password?.message}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit(handleLogin)}
               />
             )}
           />

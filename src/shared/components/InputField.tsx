@@ -1,17 +1,20 @@
-import { Key } from "react";
+import { forwardRef } from "react";
 import { View, TextInput, Text, StyleSheet, KeyboardTypeOptions } from "react-native";
 
 type InputFieldProps = {
   value: string;
-  onChangeText: (text: string) => void;
   placeholder?: string;
+  submitBehavior?: "submit" | "blurAndSubmit" | "newline";
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  returnKeyType?: "done" | "next" | "send" | "go" | "search";
   error?: string;
+  onChangeText: (text: string) => void;
+  onSubmitEditing?: () => void;
 };
 
-export default function InputField({
+const InputField = forwardRef<TextInput, InputFieldProps>(function InputField({
   value,
   onChangeText,
   placeholder,
@@ -19,7 +22,10 @@ export default function InputField({
   keyboardType = "default",
   autoCapitalize = "none",
   error,
-}: InputFieldProps) {
+  onSubmitEditing,
+  returnKeyType,
+  submitBehavior,
+}, ref) {
   return (
     <View style={styles.container}>
       <TextInput
@@ -30,12 +36,18 @@ export default function InputField({
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
+        onSubmitEditing={onSubmitEditing}
+        returnKeyType={returnKeyType}
+        submitBehavior={submitBehavior}
+        ref={ref}
       />
 
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
-}
+});
+
+export default InputField;
 
 const styles = StyleSheet.create({
   container: {

@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  TextInput
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Controller, useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import { RegisterNavigationProp } from "../../types/navigation.types";
 
@@ -29,9 +30,14 @@ type RegisterFormData = {
   confirmPassword: string;
 }
 
+
 export default function Register({ navigation }: { navigation: RegisterNavigationProp }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isKeyboardVisible } = useKeyboard();
+
+  const userNameRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const confirmPasswordRef = useRef<TextInput>(null);
 
   const {
     control,
@@ -87,7 +93,7 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
-
+        keyboardVerticalOffset={80}
       >
         {!isKeyboardVisible && (
           <ShopLogoHeader />
@@ -113,6 +119,9 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
                 onChangeText={onChange}
                 keyboardType="email-address"
                 error={errors.email?.message}
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => userNameRef.current?.focus()}
               />
             )}
           />
@@ -131,10 +140,14 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
             }}
             render={({ field: { onChange, value } }) => (
               <InputField
+                ref={userNameRef}
                 placeholder="User Name"
                 value={value}
                 onChangeText={onChange}
                 error={errors.userName?.message}
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => passwordRef.current?.focus()}
               />
             )}
           />
@@ -152,11 +165,15 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
             }}
             render={({ field: { onChange, value } }) => (
               <InputField
+                ref={passwordRef}
                 placeholder="Password"
                 value={value}
                 onChangeText={onChange}
                 secureTextEntry
                 error={errors.password?.message}
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => confirmPasswordRef.current?.focus()}
               />
             )}
           />
@@ -174,11 +191,14 @@ export default function Register({ navigation }: { navigation: RegisterNavigatio
             }}
             render={({ field: { onChange, value } }) => (
               <InputField
+                ref={confirmPasswordRef}
                 placeholder="Confirm Password"
                 value={value}
                 onChangeText={onChange}
                 secureTextEntry
                 error={errors.confirmPassword?.message}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit(handleRegister)}
               />
             )}
           />
