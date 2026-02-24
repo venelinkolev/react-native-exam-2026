@@ -1,20 +1,33 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Image,
+    Alert,
+    ScrollView,
+    ActivityIndicator,
+    Switch,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useEffect } from "react";
-import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState, useEffect, useCallback } from "react";
 
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import { ProfileScreenNavigationProp } from "../../types/navigation.types";
+import { UserProfile } from "../../types/userProfile.types";
+import { getUserProfile, getAvatarUrl } from "../../services/userProfile.service";
 
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "../../../firebaseConfig";
 
-const AVATAR_KEY = "user_avatar_uri";
-
-export default function ProfileScreen() {
-    const [imageUri, setImageUri] = useState<string | null>(null);
+export default function ProfileScreen({ navigation }: { navigation: ProfileScreenNavigationProp }) {
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const { logout } = useAuth();
+    const { isDarkMode, toggleTheme } = useTheme();
 
     // Real data from Firebase user
     useEffect(() => {
@@ -24,40 +37,35 @@ export default function ProfileScreen() {
         return () => unsubscribe();
     }, []);
 
-    // Load saved avatar URI on mount
-    useEffect(() => {
-        const loadAvatar = async () => {
-            const saved = await AsyncStorage.getItem(AVATAR_KEY);
-            if (saved) setImageUri(saved);
-        };
-        loadAvatar();
+    const loadProfileData = useCallback(async (uid: string) => {
+        setIsLoading(true);
+        try {
+            const [profile, avatar] = await Promise.all([
+                getUserProfile(uid),
+                getAvatarUrl(uid),
+            ]);
+            setUserProfile(profile);
+            setAvatarUrl(avatar);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
 
-    const handleImagePick = async () => {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-        if (status !== "granted") {
-            Alert.alert(
-                "Няма разрешение",
-                "Трябва да разрешите достъп до галерията за да смените снимката."
-            );
-            return;
+    useEffect(() => {
+        if (firebaseUser?.uid) {
+            loadProfileData(firebaseUser.uid);
         }
+    }, [firebaseUser, loadProfileData]);
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ["images"],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
+    // Reload profile data when returning from EditProfileScreen
+    useEffect(() => {
+        const unsubscribe = navigation.addListener("focus", () => {
+            if (firebaseUser?.uid) {
+                loadProfileData(firebaseUser.uid);
+            }
         });
-
-        if (!result.canceled && result.assets.length > 0) {
-            const uri = result.assets[0].uri;
-            setImageUri(uri);
-            // Save the selected image URI to AsyncStorage
-            await AsyncStorage.setItem(AVATAR_KEY, uri);
-        }
-    };
+        return unsubscribe;
+    }, [navigation, firebaseUser, loadProfileData]);
 
     const handleLogout = () => {
         Alert.alert(
@@ -70,8 +78,21 @@ export default function ProfileScreen() {
         );
     };
 
+    if (isLoading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>👤 Профил</Text>
+                </View>
+                <View style={styles.centerContainer}>
+                    <ActivityIndicator size="large" color="#3478f6" />
+                </View>
+            </SafeAreaView>
+        );
+    }
+
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, isDarkMode && styles.containerDark]} edges={["top", "left", "right"]}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>👤 Профил</Text>
             </View>
@@ -79,31 +100,80 @@ export default function ProfileScreen() {
             <ScrollView contentContainerStyle={styles.content}>
 
                 {/* Avatar */}
-                <TouchableOpacity style={styles.avatarContainer} onPress={handleImagePick}>
-                    {imageUri ? (
-                        <Image source={{ uri: imageUri }} style={styles.avatar} />
+                <View style={styles.avatarContainer}>
+                    {avatarUrl ? (
+                        <Image source={{ uri: avatarUrl }} style={styles.avatar} />
                     ) : (
                         <View style={styles.avatarPlaceholder}>
                             <Text style={styles.avatarEmoji}>👤</Text>
                         </View>
                     )}
-                    <View style={styles.changePhotoBadge}>
-                        <Text style={styles.changePhotoText}>📷 Смени снимка</Text>
-                    </View>
-                </TouchableOpacity>
+                </View>
 
-                {/* User Info */}
+                {/* User Info Card */}
                 <View style={styles.infoCard}>
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Потребител</Text>
-                        <Text style={styles.infoValue}>{firebaseUser?.displayName || "Няма потребител"}</Text>
+                        <Text style={styles.infoValue}>{userProfile?.username ? userProfile.username : firebaseUser?.displayName ?? "—"}</Text>
                     </View>
                     <View style={styles.divider} />
                     <View style={styles.infoRow}>
                         <Text style={styles.infoLabel}>Е-мейл</Text>
-                        <Text style={styles.infoValue}>{firebaseUser?.email || "Няма е-мейл"}</Text>
+                        <Text style={styles.infoValue}>{firebaseUser?.email ?? "—"}</Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Пълно име</Text>
+                        <Text style={styles.infoValue}>{userProfile?.fullName ?? "—"}</Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Рождена дата</Text>
+                        <Text style={styles.infoValue}>{userProfile?.birthDate ?? "—"}</Text>
                     </View>
                 </View>
+
+                {/* Delivery Address Card */}
+                <View style={styles.sectionTitle}>
+                    <Text style={styles.sectionTitleText}>📦 Адрес за доставка</Text>
+                </View>
+                <View style={styles.infoCard}>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Град</Text>
+                        <Text style={styles.infoValue}>{userProfile?.city ?? "—"}</Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Улица</Text>
+                        <Text style={styles.infoValue}>{userProfile?.street ?? "—"}</Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Пощенски код</Text>
+                        <Text style={styles.infoValue}>{userProfile?.postCode ?? "—"}</Text>
+                    </View>
+                </View>
+
+                {/* Dark Mode Toggle */}
+                <View style={styles.infoCard}>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Тъмен режим</Text>
+                        <Switch
+                            value={isDarkMode}
+                            onValueChange={toggleTheme}
+                            trackColor={{ false: "#ccc", true: "#3478f6" }}
+                            thumbColor={isDarkMode ? "#fff" : "#fff"}
+                        />
+                    </View>
+                </View>
+
+                {/* Edit Button */}
+                <TouchableOpacity
+                    style={styles.editBtn}
+                    onPress={() => navigation.navigate("EditProfileScreen")}
+                >
+                    <Text style={styles.editBtnText}>✏️ Редактирай профила</Text>
+                </TouchableOpacity>
 
                 {/* Logout Button */}
                 <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
@@ -119,6 +189,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#f2f2f2",
+    },
+    containerDark: {
+        backgroundColor: "#1a1a2e",
     },
     header: {
         backgroundColor: "#3478f6",
@@ -206,6 +279,33 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     logoutBtnText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    sectionTitle: {
+        width: "100%",
+        marginBottom: 8,
+    },
+    sectionTitleText: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#555",
+    },
+    editBtn: {
+        width: "100%",
+        backgroundColor: "#3478f6",
+        padding: 16,
+        borderRadius: 10,
+        alignItems: "center",
+        marginBottom: 12,
+    },
+    editBtnText: {
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
