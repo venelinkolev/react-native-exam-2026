@@ -6,7 +6,7 @@ import { MainTabParamList } from "../types/navigation.types";
 
 import HomeStackNavigator from "./HomeStackNavigator";
 import CartScreen from "../screens/cart/CartScreen";
-import ProfileScreen from "../screens/profile/ProfileScreen";
+import ProfileStackNavigator from "./ProfileStackNavigator";
 import { useAuth } from "../context/AuthContext";
 import GuestScreen from "../screens/guest/GuestScreen";
 
@@ -22,7 +22,7 @@ export default function MainTabNavigator() {
         >
             <Tab.Screen name="Home" component={HomeStackNavigator} options={{ title: "Начало", tabBarIcon: ({ focused }) => <Text style={{ color: focused ? "#3478f6" : "#888" }}>🏠</Text> }} />
             <Tab.Screen name="Cart" component={isGuest ? GuestScreen : CartScreen} options={{ title: "Количка", tabBarIcon: ({ focused }) => <Text style={{ color: focused ? "#3478f6" : "#888" }}>🛒</Text> }} />
-            <Tab.Screen name="Profile" component={isGuest ? GuestScreen : ProfileScreen} options={{ title: "Профил", tabBarIcon: ({ focused }) => <Text style={{ color: focused ? "#3478f6" : "#888" }}>👤</Text> }} />
+            <Tab.Screen name="Profile" component={isGuest ? GuestScreen : ProfileStackNavigator} options={{ title: "Профил", tabBarIcon: ({ focused }) => <Text style={{ color: focused ? "#3478f6" : "#888" }}>👤</Text> }} />
         </Tab.Navigator>
     );
 }

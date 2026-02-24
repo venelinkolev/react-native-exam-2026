@@ -21,6 +21,12 @@ export type HomeStackParamList = {
     ProductDetails: { product: ProductParam };
 };
 
+// Profile Stack
+export type ProfileStackParamList = {
+    ProfileScreen: undefined;
+    EditProfileScreen: undefined;
+};
+
 // Bottom Tab Navigator
 export type MainTabParamList = {
     Home: undefined;
@@ -40,3 +46,7 @@ export type ProductDetailsNavigationProp = NativeStackNavigationProp<HomeStackPa
 // Navigation prop types за Auth Screens
 export type LoginNavigationProp = NativeStackNavigationProp<AuthStackParamList, "Login">;
 export type RegisterNavigationProp = NativeStackNavigationProp<AuthStackParamList, "Register">;
+
+// Navigation prop types за Profile Stack Screens
+export type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, "ProfileScreen">;
+export type EditProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, "EditProfileScreen">;
