@@ -7,6 +7,7 @@ import {
     UpdateCartRequest,
     DeleteCartRequest,
 } from "../types/cart.types";
+import { ENVIRONMENT } from "../../local.environment";
 
 const getAuthHeader = async () => {
     const token = await getToken();
@@ -16,7 +17,7 @@ const getAuthHeader = async () => {
 export const getCart = async (data: GetCartRequest): Promise<CartItemAPI[]> => {
     const token = await getToken();
 
-    const url = `${process.env.EXPO_PUBLIC_BASE_URL}/cart?sessionID=${data.sessionID}&customerID=${data.customerID}`;
+    const url = `${ENVIRONMENT.baseURL}/cart?sessionID=${data.sessionID}&customerID=${data.customerID}`;
 
     const response = await fetch(url, {
         method: "GET",
