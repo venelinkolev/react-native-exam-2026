@@ -7,6 +7,7 @@ import {
     ActivityIndicator,
     TouchableOpacity,
 } from "react-native";
+import Slider from "@react-native-community/slider";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useCallback, useEffect } from "react";
 
@@ -17,6 +18,7 @@ import ProductCard from "../../shared/components/ProductCard";
 
 export default function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
     const [products, setProducts] = useState<ProductParam[]>([]);
+    const [maxPrice, setMaxPrice] = useState<number>(5);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +38,8 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
     useEffect(() => {
         loadProducts();
     }, [loadProducts]);
+
+    const filteredProducts = products.filter((p) => p.price <= maxPrice);
 
     const handleProductPress = (product: ProductParam) => {
         navigation.navigate("ProductDetails", { product });
@@ -73,13 +77,29 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>🛍️ Онлайн магазин</Text>
             </View>
 
+            {/* Filter Products Price */}
+            <View style={styles.sliderContainer}>
+                <Text style={styles.sliderLabel}>Макс. цена: {maxPrice.toFixed(2)} €</Text>
+                <Slider
+                    style={styles.slider}
+                    minimumValue={0}
+                    maximumValue={5}
+                    step={0.2}
+                    value={maxPrice}
+                    onValueChange={(val) => setMaxPrice(val)}
+                    minimumTrackTintColor="#3478f6"
+                    maximumTrackTintColor="#ccc"
+                    thumbTintColor="#3478f6"
+                />
+            </View>
+
             <FlatList
-                data={products}
+                data={filteredProducts}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <ProductCard product={item} onPress={handleProductPress} />
@@ -113,6 +133,23 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 20,
         fontWeight: "bold",
+    },
+    sliderContainer: {
+        backgroundColor: "#fff",
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: "#e0e0e0",
+    },
+    sliderLabel: {
+        fontSize: 13,
+        color: "#555",
+        marginBottom: 4,
+        fontWeight: "600",
+    },
+    slider: {
+        width: "100%",
+        height: 36,
     },
     list: {
         paddingVertical: 10,
