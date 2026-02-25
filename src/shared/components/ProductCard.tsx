@@ -47,7 +47,7 @@ export default function ProductCard({ product, onPress }: Props) {
             </View>
             <View style={styles.info}>
                 <View style={styles.infoContent}>
-                    <View>
+                    <View style={styles.infoContentInfo}>
                         <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
                         {product.category && (
                             <Text style={styles.category}>{product.category}</Text>
@@ -116,6 +116,9 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
+    },
+    infoContentInfo: {
+        width: "75%",
     },
     cart: {
         marginRight: 20,

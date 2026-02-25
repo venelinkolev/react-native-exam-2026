@@ -20,3 +20,25 @@ export type ProductParam = {
     category?: string;
     stockID: number;
 };
+
+// API /groups - raw response item
+export type GroupAPI = {
+    id: number;
+    name: string;
+    image: string;
+    parentID: number;
+    tag: number;
+    group_address: {
+        id: number;
+        name: string;
+        parentID: number;
+        is_page: boolean;
+    }[];
+};
+
+// Group Type for UI
+export type Group = {
+    id: number;
+    name: string;
+    parentID: number;
+};

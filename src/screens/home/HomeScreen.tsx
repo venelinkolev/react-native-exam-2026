@@ -13,12 +13,12 @@ import { useState, useCallback, useEffect } from "react";
 
 import { HomeScreenNavigationProp } from "../../types/navigation.types";
 import { ProductParam } from "../../types/product.types";
-import { fetchProducts } from "../../api/products";
+import { fetchProducts, fetchGroups } from "../../api/products";
 import ProductCard from "../../shared/components/ProductCard";
 
 export default function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
     const [products, setProducts] = useState<ProductParam[]>([]);
-    const [maxPrice, setMaxPrice] = useState<number>(5);
+    const [maxPrice, setMaxPrice] = useState<number>(10);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +26,8 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
         setIsLoading(true);
         setError(null);
         try {
-            const data = await fetchProducts();
+            const groups = await fetchGroups();
+            const data = await fetchProducts(groups);
             setProducts(data);
         } catch {
             setError("Грешка при зареждане на продуктите.");
@@ -88,7 +89,7 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
                 <Slider
                     style={styles.slider}
                     minimumValue={0}
-                    maximumValue={5}
+                    maximumValue={10}
                     step={0.2}
                     value={maxPrice}
                     onValueChange={(val) => setMaxPrice(val)}
