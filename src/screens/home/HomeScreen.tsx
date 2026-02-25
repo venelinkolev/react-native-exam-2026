@@ -7,6 +7,7 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     ScrollView,
+    Alert,
 } from "react-native";
 import Slider from "@react-native-community/slider";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,6 +17,9 @@ import { HomeScreenNavigationProp } from "../../types/navigation.types";
 import { ProductParam, Group } from "../../types/product.types";
 import { fetchProducts, fetchGroups } from "../../api/products";
 import ProductCard from "../../shared/components/ProductCard";
+import { loginApiSession } from "../../api/auth";
+import { ENVIRONMENT } from "../../../local.environment";
+import { useAuth } from "../../context/AuthContext";
 
 export default function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
     const [products, setProducts] = useState<ProductParam[]>([]);
@@ -24,6 +28,7 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
     const [error, setError] = useState<string | null>(null);
     const [groups, setGroups] = useState<Group[]>([]);
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+    const { apiSession } = useAuth();
 
     const loadProducts = useCallback(async () => {
         setIsLoading(true);
@@ -43,6 +48,24 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
     useEffect(() => {
         loadProducts();
     }, [loadProducts]);
+
+    const handleApiSession = async () => {
+        try {
+            setIsLoading(true)
+            const response = await loginApiSession({
+                email: ENVIRONMENT.apiEmail,
+                username: ENVIRONMENT.apiUsername,
+            });
+
+            await apiSession(response.token);
+
+        } catch (error) {
+            Alert.alert("Грешка", (error as Error).message);
+        } finally {
+            loadProducts();
+            setIsLoading(false)
+        }
+    }
 
     const filteredProducts = products
         .filter((p) => selectedGroupId === null || p.category === groups.find((g) => g.id === selectedGroupId)?.name)
@@ -75,7 +98,7 @@ export default function HomeScreen({ navigation }: { navigation: HomeScreenNavig
                 </View>
                 <View style={styles.centerContainer}>
                     <Text style={styles.errorText}>{error}</Text>
-                    <TouchableOpacity style={styles.retryBtn} onPress={loadProducts}>
+                    <TouchableOpacity style={styles.retryBtn} onPress={handleApiSession}>
                         <Text style={styles.retryBtnText}>Опитай отново</Text>
                     </TouchableOpacity>
                 </View>
