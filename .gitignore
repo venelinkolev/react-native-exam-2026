@@ -42,4 +42,4 @@ yarn-error.*
 /android
 
 # firebase
-local.environment.ts
+# local.environment.ts
