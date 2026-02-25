@@ -17,6 +17,9 @@ import {
   getFirebaseAuthToken,
   saveFirebaseAuthToken,
   deleteFirebaseAuthToken,
+  getGuestMode,
+  saveGuestMode,
+  deleteGuestMode,
 } from "../utils/storage";
 
 // Init state
@@ -34,15 +37,17 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>(initialState);
 
-  // When Start check for tocken and sessionID in storage
+  // When Start check for token, sessionID and guest mode in storage
   useEffect(() => {
     const loadSession = async () => {
       try {
         const token = await getToken();
         const firebaseToken = await getFirebaseAuthToken();
         const sessionID = await getSessionID();
+        const isGuest = await getGuestMode();
 
         if (token && sessionID) {
+          // User is authenticated
           setAuthState({
             token,
             firebaseToken,
@@ -51,7 +56,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isGuest: false,
             isLoading: false,
           });
+        } else if (isGuest) {
+          // User is in guest mode
+          setAuthState({
+            token: null,
+            firebaseToken: null,
+            sessionID: null,
+            isAuthenticated: false,
+            isGuest: true,
+            isLoading: false,
+          });
         } else {
+          // Not authenticated and not guest
           setAuthState({ ...initialState, isLoading: false });
         }
       } catch {
@@ -77,6 +93,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await saveFirebaseAuthToken(firebaseToken);
     await saveSessionID(sessionID);
 
+    // Clear guest mode when logging in
+    await deleteGuestMode();
+
     setAuthState({
       token,
       firebaseToken,
@@ -87,11 +106,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  // Logout removes token and sessionID from storage and updates state
+  // Logout removes token, sessionID and guest mode from storage and updates state
   const logout = async () => {
     await deleteToken();
     await deleteFirebaseAuthToken();
     await deleteSessionID();
+
+    // Clear guest mode when logging out
+    await deleteGuestMode();
 
     setAuthState({
       token: null,
@@ -103,7 +125,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const continueAsGuest = () => {
+  const continueAsGuest = async () => {
+    await saveGuestMode(true); // Save guest mode to storage
+
     setAuthState({
       token: null,
       firebaseToken: null,

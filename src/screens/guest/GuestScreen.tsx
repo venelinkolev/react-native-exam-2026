@@ -4,6 +4,10 @@ import { useAuth } from "../../context/AuthContext";
 export default function GuestScreen() {
     const { logout } = useAuth();
 
+    const handleLogout = async () => {
+        await logout();
+    };
+
     return (
         <View style={guestStyles.container}>
             <Text style={guestStyles.icon}>🔒</Text>
@@ -13,7 +17,7 @@ export default function GuestScreen() {
             </Text>
             <TouchableOpacity
                 style={guestStyles.button}
-                onPress={logout}
+                onPress={handleLogout}
             >
                 <Text style={guestStyles.buttonText}>Към вход</Text>
             </TouchableOpacity>

@@ -62,7 +62,7 @@ export default function Login({
 
       await apiSession(response.token);
 
-      continueAsGuest();
+      await continueAsGuest();
 
     } catch (error) {
       Alert.alert("Грешка", (error as Error).message);

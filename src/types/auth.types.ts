@@ -23,6 +23,6 @@ export type AuthState = {
 export type AuthContextType = AuthState & {
   login: (token: string, firebaseToken: string) => Promise<void>;
   logout: () => Promise<void>;
-  continueAsGuest: () => void;
+  continueAsGuest: () => Promise<void>; // Changed to async
   apiSession: (token: string) => Promise<void>;
 };
