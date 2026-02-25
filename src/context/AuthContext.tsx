@@ -126,7 +126,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const continueAsGuest = async () => {
-    await saveGuestMode(true); // Save guest mode to storage
+    // Save guest mode to storage
+    await saveGuestMode(true);
+
+    // Remove Firebase Token and SessionID from Storage
+    await deleteSessionID();
+    await deleteFirebaseAuthToken();
 
     setAuthState({
       token: null,
