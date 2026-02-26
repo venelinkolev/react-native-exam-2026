@@ -8,7 +8,7 @@ React Native курсов проект за мобилно приложение 
 
 ```
 🤖 Android app:
-https://drive.google.com/......
+https://drive.google.com/file/d/1ClW2UsNtuF9S_O5c3_gMDQZD1U1c1G9S/view?usp=sharing
 ```
 
 Или:
